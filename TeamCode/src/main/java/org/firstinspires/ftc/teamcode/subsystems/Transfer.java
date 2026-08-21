@@ -15,14 +15,19 @@ public class Transfer {
     Servo rightBlock;
     Servo leftBlock;
     RevColorSensorV3 sensorOne;
+    // closest to uptake
     RevColorSensorV3 sensorTwo;
     RevColorSensorV3 sensorThree;
+    //closest to intake
     TransferStates transferState = TransferStates.HOLD;
-    double blockUptakePosition;
-    double openUptakePosition;
-    final double HAS_BALL_THRESHOLD = 38.30;
+    double leftBlockPosition;
+    double leftOpenPosition;
+    double rightBlockPosition;
+    double rightOpenPosition;
+    final double HAS_BALL_THRESHOLD1 = 38.30;
+    final double HAS_BALL_THRESHOLD2 = 38.30;
+    final double HAS_BALL_THRESHOLD3 = 38.30;
     int ballNumber;
-// ask about reversing it or just smacking it dead in the middle
     public Transfer(HardwareMap hwMap){
         intake = hwMap.get(DcMotorEx.class, "intakes");
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -41,9 +46,9 @@ public class Transfer {
         sensorTwo = hwMap.get(RevColorSensorV3.class, "sensorTwo");
         sensorThree = hwMap.get(RevColorSensorV3.class, "sensorThree");
     }
-    // lowkey forgot what an enum does
+    //  trying to fix stupid android test
     enum TransferStates{
-        INTAKE, HOLD, CLEAR, STRAIGHTUP
+        INTAKE, HOLD, CLEAR, UPTAKE
     }
     public TransferStates getTransferState(){
         return transferState;
@@ -53,12 +58,12 @@ public class Transfer {
     }
 
     public void setBlockUptakePosition(){
-        leftBlock.setPosition(blockUptakePosition);
-        rightBlock.setPosition(blockUptakePosition);
+        leftBlock.setPosition(leftBlockPosition);
+        rightBlock.setPosition(rightBlockPosition);
     }
     public void setOpenUptakePosition(){
-        leftBlock.setPosition(openUptakePosition);
-        rightBlock.setPosition(openUptakePosition);
+        leftBlock.setPosition(leftOpenPosition);
+        rightBlock.setPosition(rightOpenPosition);
     }
 
     public void transferUpdate(){
@@ -73,7 +78,7 @@ public class Transfer {
                 intake.setPower(0);
                 uptake.setPower(0);
                 break;
-            case STRAIGHTUP:
+            case UPTAKE:
                 setOpenUptakePosition();
                 intake.setPower(1);
                 uptake.setPower(1);
@@ -82,6 +87,7 @@ public class Transfer {
                 setOpenUptakePosition();
                 intake.setPower(-1);
                 uptake.setPower(-1);
+                break;
         }
     }
     public void setHoldMode(){
@@ -91,21 +97,21 @@ public class Transfer {
         setTransferStates(TransferStates.INTAKE);
     }
     public void setStraightUpMode(){
-        setTransferStates(TransferStates.STRAIGHTUP);
+        setTransferStates(TransferStates.UPTAKE);
     }
     public void setClearMode(){
         setTransferStates(TransferStates.CLEAR);
     }
     // I apologize in advance for this
     public int getBallNumber(){
-        if((sensorOne.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD) && (sensorTwo.getDistance(DistanceUnit.INCH) > HAS_BALL_THRESHOLD)
-        && (sensorThree.getDistance(DistanceUnit.INCH) > HAS_BALL_THRESHOLD)){
+        if((sensorOne.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD1) && (sensorTwo.getDistance(DistanceUnit.INCH) > HAS_BALL_THRESHOLD2)
+        && (sensorThree.getDistance(DistanceUnit.INCH) > HAS_BALL_THRESHOLD3)){
             return ballNumber = 1;
-        } else if ((sensorOne.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD) && (sensorTwo.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD)
-                && (sensorThree.getDistance(DistanceUnit.INCH) > HAS_BALL_THRESHOLD)){
+        } else if ((sensorOne.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD1) && (sensorTwo.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD2)
+                && (sensorThree.getDistance(DistanceUnit.INCH) > HAS_BALL_THRESHOLD3)){
             return ballNumber = 2;
-        } else if ((sensorOne.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD) && (sensorTwo.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD)
-                && (sensorThree.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD)){
+        } else if ((sensorOne.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD1) && (sensorTwo.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD2)
+                && (sensorThree.getDistance(DistanceUnit.INCH) < HAS_BALL_THRESHOLD3)){
             return ballNumber = 3;
         }
         return ballNumber = 0;
